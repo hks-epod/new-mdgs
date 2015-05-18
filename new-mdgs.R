@@ -8,15 +8,12 @@ data <-
   tbl_df %>%
   slice(1:40356) %>%
   filter(MDG == "Y")
-  
-names(data) <-
-  gsub("X", "", names(data), fixed = TRUE)
 
 data$SeriesCode %<>%
-  factor(levels = data$SeriesCode[1:80], labels = data$Series[1:80])
+  factor(labels = data$Series[1:80])
 
 data$CountryCode %<>%
-  factor(levels = unique(data$CountryCode), labels = unique(data$Country))
+  factor(labels = unique(data$Country))
 
 data %<>%
   select(-Series,-Country,-MDG,-contains("Footnotes"),-contains("Type")) %>% 
