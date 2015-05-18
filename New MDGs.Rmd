@@ -1,0 +1,404 @@
+---
+title: "New MDGs"
+author: "Nils Enevoldsen"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+---
+
+```{r package_options, include=FALSE}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+Set up environment:
+
+```{r setup, message=FALSE }
+setwd("~/new-mdgs")
+
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(ggplot2)
+```
+
+Sculpt data:
+
+```{r sculpt}
+goals <-
+  read.csv("MDG_Export_20150514_231243045.csv", stringsAsFactors = FALSE) %>% 
+  tbl_df %>%
+  slice(1:40356) %>%                        # Chop off footnotes
+  filter(MDG == "Y") %>%                    # Filter out variables that aren't goals
+  select(Country,Series,contains("X"))%>%   # Keep only countries, goals, and years
+  gather(Year, Value, -(1:2)) %>%           # Make year into a variable (a column)
+  spread(Series, Value) %>%                 # Make goals into variables (columns)
+  mutate(Country = as.factor(Country)) %>% 
+  mutate(Year = extract_numeric(Year))
+
+goal.names <- goals %>% colnames %>% inset(1:2, NA) # Store goal names with punctuation...
+
+colnames(goals) %<>% make.names                     # ...then standardize column titles
+```
+
+Function to create plots showing country progress towards goals:
+
+```{r plot_country_progress}
+plot.country.progress <-
+  . %>%
+  {
+    goal.colname <- colnames(goals)[[.]]
+    goal.name <- goal.names[[.]]
+    ggplot(goals, aes_string("Year", goal.colname)) %>%
+    add(geom_line(aes(color = Country))) %>% 
+    add(ggtitle(goal.name)) %>% 
+    add(labs(y = goal.name)) %>% 
+    add(theme(legend.position = "none"))
+  }
+```
+
+# Goal 1: Eradicate extreme poverty and hunger
+## Target 1A: Halve, between 1990 and 2015, the proportion of people living on less than $1.25 a day
+### Poverty gap ratio [incidence x depth of poverty]
+```{r, echo=FALSE}
+plot.country.progress(57)
+plot.country.progress(60)
+```
+
+
+### Share of poorest quintile in national consumption
+```{r, echo=FALSE}
+plot.country.progress(56)
+```
+
+## Target 1B: Achieve Decent Employment for Women, Men, and Young People
+### GDP Growth per Employed Person
+```{r, echo=FALSE}
+plot.country.progress(37)
+```
+
+### Employment Rate
+```{r, echo=FALSE}
+plot.country.progress(32)
+```
+
+### Proportion of employed population below $1.25 per day (PPP values)
+```{r, echo=FALSE}
+plot.country.progress(61)
+```
+
+### Proportion of family-based workers in employed population
+```{r, echo=FALSE}
+plot.country.progress(64)
+```
+
+## Target 1C: Halve, between 1990 and 2015, the proportion of people who suffer from hunger
+### Prevalence of underweight children under five years of age
+```{r, echo=FALSE}
+plot.country.progress(19)
+```
+
+### Proportion of population below minimum level of dietary energy consumption
+```{r, echo=FALSE}
+plot.country.progress(58)
+```
+
+
+# Goal 2: Achieve universal primary education
+## Target 2A: By 2015, all children can complete a full course of primary schooling, girls and boys
+### Enrolment in primary education
+```{r, echo=FALSE}
+plot.country.progress(74)
+```
+
+### Completion of primary education
+```{r, echo=FALSE}
+plot.country.progress(55)
+plot.country.progress(40)
+```
+
+# Goal 3: Promote gender equality and empower women
+## Target 3A: Eliminate gender disparity in primary and secondary education preferably by 2005, and at all levels by 2015
+### Ratios of girls to boys in primary, secondary and tertiary education
+```{r, echo=FALSE}
+plot.country.progress(34)
+plot.country.progress(35)
+plot.country.progress(36)
+```
+
+### Share of women in wage employment in the non-agricultural sector
+```{r, echo=FALSE}
+plot.country.progress(71)
+```
+
+### Proportion of seats held by women in national parliament
+```{r, echo=FALSE}
+plot.country.progress(70)
+```
+
+# Goal 4: Reduce child mortality rates
+## Target 4A: Reduce by two-thirds, between 1990 and 2015, the under-five mortality rate
+### Under-five mortality rate
+```{r, echo=FALSE}
+plot.country.progress(22)
+```
+
+### Infant (under 1) mortality rate
+```{r, echo=FALSE}
+plot.country.progress(38)
+```
+
+### Proportion of 1-year-old children immunized against measles
+```{r, echo=FALSE}
+plot.country.progress(18)
+```
+
+# Goal 5: Improve maternal health
+## Target 5A: Reduce by three quarters, between 1990 and 2015, the maternal mortality ratio
+### Maternal mortality ratio
+```{r, echo=FALSE}
+plot.country.progress(43)
+```
+
+### Proportion of births attended by skilled health personnel
+```{r, echo=FALSE}
+plot.country.progress(11)
+```
+
+## Target 5B: Achieve, by 2015, universal access to reproductive health
+### Contraceptive prevalence rate
+```{r, echo=FALSE}
+plot.country.progress(26)
+```
+
+### Adolescent birth rate
+```{r, echo=FALSE}
+plot.country.progress(3)
+```
+
+### Antenatal care coverage
+```{r, echo=FALSE}
+plot.country.progress(5)
+plot.country.progress(6)
+```
+
+### Unmet need for family planning
+```{r, echo=FALSE}
+plot.country.progress(81)
+```
+
+# Goal 6: Combat HIV/AIDS, malaria, and other diseases
+## Target 6A: Have halted by 2015 and begun to reverse the spread of HIV/AIDS
+### HIV prevalence among population aged 15–24 years
+```{r, echo=FALSE}
+plot.country.progress(54)
+```
+
+### Condom use at last high-risk sex
+```{r, echo=FALSE}
+plot.country.progress(23)
+plot.country.progress(24)
+```
+
+### Proportion of population aged 15–24 years with comprehensive correct knowledge of HIV/AIDS
+```{r, echo=FALSE}
+plot.country.progress(44)
+plot.country.progress(82)
+```
+
+### Ratio of school attendance of orphans to school attendance of non-orphans aged 10-14 years 
+```{r, echo=FALSE}
+plot.country.progress(69)
+```
+
+## Target 6B: Achieve, by 2010, universal access to treatment for HIV/AIDS for all those who need it
+### Proportion of population with advanced HIV infection with access to antiretroviral drugs
+```{r, echo=FALSE}
+plot.country.progress(7)
+```
+
+## Target 6C: Have halted by 2015 and begun to reverse the incidence of malaria and other major diseases
+### Prevalence and death rates associated with malaria
+```{r, echo=FALSE}
+plot.country.progress(41)
+plot.country.progress(42)
+plot.country.progress(48)
+```
+
+### Proportion of children under 5 sleeping under insecticide-treated bednets
+```{r, echo=FALSE}
+plot.country.progress(20)
+```
+
+### Proportion of children under 5 with fever who are treated with appropriate anti-malarial drugs
+```{r, echo=FALSE}
+plot.country.progress(21)
+```
+
+### Incidence, prevalence and death rates associated with tuberculosis
+```{r, echo=FALSE}
+plot.country.progress(79)
+plot.country.progress(78)
+plot.country.progress(76)
+```
+
+### Proportion of tuberculosis cases detected and cured under DOTS (Directly Observed Treatment Short Course)
+```{r, echo=FALSE}
+plot.country.progress(77)
+plot.country.progress(80)
+```
+
+# Goal 7: Ensure environmental sustainability
+## Target 7A: Integrate the principles of sustainable development into country policies and programs; reverse loss of environmental resources
+## Target 7B: Reduce biodiversity loss, achieving, by 2010, a significant reduction in the rate of loss
+### Proportion of land area covered by forest
+```{r, echo=FALSE}
+plot.country.progress(63)
+```
+
+### CO2 emissions, total, per capita and per $1 GDP (PPP)
+```{r, echo=FALSE}
+plot.country.progress(12)
+plot.country.progress(13)
+plot.country.progress(14)
+plot.country.progress(15)
+plot.country.progress(16)
+plot.country.progress(17)
+```
+
+### Consumption of ozone-depleting substances
+```{r, echo=FALSE}
+plot.country.progress(25)
+```
+
+### Proportion of fish stocks within safe biological limits
+```{r, echo=FALSE}
+plot.country.progress(62)
+```
+
+### Proportion of total water resources used
+```{r, echo=FALSE}
+plot.country.progress(68)
+```
+
+### Proportion of terrestrial and marine areas protected
+```{r, echo=FALSE}
+plot.country.progress(73)
+```
+
+### Proportion of species threatened with extinction
+```{r, echo=FALSE}
+plot.country.progress(65)
+```
+
+## Target 7C: Halve, by 2015, the proportion of the population without sustainable access to safe drinking water and basic sanitation (for more information see the entry on water supply)
+### Proportion of population with sustainable access to an improved water source, urban and rural
+```{r, echo=FALSE}
+plot.country.progress(66)
+```
+
+### Proportion of urban population with access to improved sanitation
+```{r, echo=FALSE}
+plot.country.progress(67)
+```
+
+## Target 7D: By 2020, to have achieved a significant improvement in the lives of at least 100 million slum-dwellers
+### Proportion of urban population living in slums
+```{r, echo=FALSE}
+plot.country.progress(72)
+```
+
+# Goal 8: Develop a global partnership for development
+## Target 8A: Develop further an open, rule-based, predictable, non-discriminatory trading and financial system
+### Includes a commitment to good governance, development, and poverty reduction – both nationally and internationally
+## Target 8B: Address the Special Needs of the Least Developed Countries (LDCs)
+### Includes: tariff and quota free access for LDC exports; enhanced programme of debt relief for HIPC and cancellation of official bilateral debt; and more generous ODA (Official Development Assistance) for countries committed to poverty reduction
+## Target 8C: Address the special needs of landlocked developing countries and small island developing States
+### Through the Programme of Action for the Sustainable Development of Small Island Developing States and the outcome of the twenty-second special session of the General Assembly
+## Target 8D: Deal comprehensively with the debt problems of developing countries through national and international measures in order to make debt sustainable in the long term
+### Official development assistance (ODA):
+#### Net ODA, total and to LDCs, as percentage of OECD/DAC donors’ GNI
+```{r, echo=FALSE}
+plot.country.progress(46)
+plot.country.progress(47)
+```
+
+#### Proportion of total sector-allocable ODA of OECD/DAC donors to basic social services (basic education, primary health care, nutrition, safe water and sanitation)
+```{r, echo=FALSE}
+plot.country.progress(53)
+```
+
+#### Proportion of bilateral ODA of OECD/DAC donors that is untied
+```{r, echo=FALSE}
+plot.country.progress(52)
+```
+
+#### ODA received in landlocked countries as proportion of their GNIs
+```{r, echo=FALSE}
+plot.country.progress(50)
+```
+
+#### ODA received in small island developing States as proportion of their GNIs
+```{r, echo=FALSE}
+plot.country.progress(51)
+```
+
+### Market access:
+#### Proportion of total developed country imports (by value and excluding arms) from developing countries and from LDCs, admitted free of duty
+```{r, echo=FALSE}
+plot.country.progress(30)
+plot.country.progress(31)
+```
+
+#### Average tariffs imposed by developed countries on agricultural products and textiles and clothing from developing countries
+```{r, echo=FALSE}
+plot.country.progress(8)
+plot.country.progress(9)
+plot.country.progress(10)
+```
+
+#### Agricultural support estimate for OECD countries as percentage of their GDP
+```{r, echo=FALSE}
+plot.country.progress(4)
+```
+
+#### Proportion of ODA provided to help build trade capacity
+```{r, echo=FALSE}
+plot.country.progress(49)
+```
+
+### Debt sustainability:
+#### Total number of countries that have reached their HIPC decision points and number that have reached their HIPC completion points (cumulative)
+```{r, echo=FALSE}
+plot.country.progress(75)
+```
+
+#### Debt relief committed under HIPC initiative, US$
+```{r, echo=FALSE}
+plot.country.progress(27)
+plot.country.progress(28)
+```
+
+#### Debt service as a percentage of exports of goods and services
+```{r, echo=FALSE}
+plot.country.progress(29)
+```
+
+## Target 8E: In co-operation with pharmaceutical companies, provide access to affordable, essential drugs in developing countries
+### Proportion of population with access to affordable essential drugs on a sustainable basis
+```{r, echo=FALSE}
+plot.country.progress(59)
+```
+
+## Target 8F: In co-operation with the private sector, make available the benefits of new technologies, especially information and communications
+### Telephone lines and cellular subscribers per 100 population
+```{r, echo=FALSE}
+plot.country.progress(33)
+plot.country.progress(45)
+```
+
+### Personal computers in use per 100 population
+### Internet users per 100 Population
+```{r, echo=FALSE}
+plot.country.progress(39)
+```
