@@ -1,20 +1,23 @@
+setwd("~/new-mdgs")
+
 library(dplyr)
 library(tidyr)
 library(magrittr)
 library(ggplot2)
 
-data <- 
+goals <- 
   read.csv("MDG_Export_20150514_231243045.csv", stringsAsFactors = FALSE) %>% 
   tbl_df %>%
-  slice(1:40356) %>%
+  slice(1:40356) %>%                      # Exclude footnotes
   filter(MDG %>% equals("Y")) %>%
-  select(-MDG,-contains("Footnotes"),-contains("Type")) %>% 
-  gather(Year, Value, 5:30) %>% 
+  select(Country,Series,contains("X"))%>% # Years are named "X1990" etc.
+  gather(Year, Value, -(1:2)) %>% 
+  spread(Series, Value) %>% 
   mutate(Year = extract_numeric(Year))
-#TODO: spread() on Value
 
-data %>%
-  filter(SeriesCode %>% equals("605")) %>% 
-  ggplot(aes(Year, Value)) %>%
-  add(geom_line(aes(color=CountryCode))) %>% 
+goals %>%
+  ggplot(aes(Year, `Fixed-telephone subscriptions per 100 inhabitants`)) %>%
+  add(geom_line(aes(color=Country))) %>% 
+  add(ggtitle('Fixed-telephone subscriptions per 100 inhabitants')) %>% 
+  add(theme(legend.position="none")) %>% 
   print
